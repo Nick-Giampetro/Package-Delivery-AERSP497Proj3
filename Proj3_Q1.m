@@ -8,7 +8,7 @@ clc; clear; close all;
 
 
 % runs dijkstra is true, runs A* if false
-RUN_DIJKSTRA = false;
+RUN_DIJKSTRA = true;
 
 
 % Building the Map
@@ -16,11 +16,11 @@ map_size = 11;
 map_base = ones(map_size);
 
 i_start = 1; %starting row
-j_start = 1;  %starting column
+j_start = 1; %starting column
 startNode = [i_start,j_start];
 
-i_goal = 11;
-j_goal = 11;
+i_goal = 11; %ending row
+j_goal = 11; %ending column
 goalNode = [i_goal,j_goal];
 
 map = map_base;
@@ -32,7 +32,7 @@ trees = false;
 
 % Defining the Distance Matrix
 distance = inf*map_base;
-distance(startNode) = 0;
+distance(startNode(1),startNode(2)) = 0;
 
 [distance, visitedNodes] = minimumTravelCosts(startNode, goalNode, distance, map, map_size, RUN_DIJKSTRA);
 
@@ -63,6 +63,7 @@ hold on;
 plot(goalNode(2), (map_size + 1) - goalNode(1),'.','MarkerSize',25, 'Color','r') %ending location
 
 xticks(1:1:map_size)
+yticks(1:1:map_size)
 yticklabels(map_size:-1:1)
 colormap('bone')
 colorbar
