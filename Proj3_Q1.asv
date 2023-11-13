@@ -3,6 +3,14 @@
 
 clc; clear; close all;
 
+
+%% Setup for Minimum Distance Map
+
+
+% runs dijkstra is true, runs A* if false
+RUN_DIJKSTRA = true;
+
+
 % Building the Map
 map_size = 11;
 map_base = ones(map_size);
@@ -25,20 +33,53 @@ trees = false;
 distance = inf*map_base;
 distance(startNode) = 0;
 
-% runs dijkstra is true, runs A* if false
-run_Dijkstra = false;
 
+[optimalPath, optimalCost] = findingOptimalPath(startNode, goalNode, distance, map_size)
+
+%% Plotting the Results
+
+%formatting the data for best plotting results
+trueOptCost = flip(optimalCost);
+trueOptPath = flip(optimalPath, 1);
+
+plottingOptPath(:,1) = (map_size + 1) - trueOptPath(:,1);
+plottingOptPath(:,2) = trueOptPath(:,2);
+
+plottingDistances = flip(distance, 1);
+
+%plotting
+figure(1)
+imagesc(plottingDistances)
+hold on;
+
+plot(plottingOptPath(:,2), plottingOptPath(:,1), 'Color','r', 'LineWidth',2)
+hold on;
+
+plot(startNode(2), (map_size + 1) - startNode(1),'.','MarkerSize',25, 'Color','g') %starting location
+hold on;
+
+plot(goalNode(2), (map_size + 1) - goalNode(1),'.','MarkerSize',25, 'Color','r') %ending location
+
+xticks(1:1:map_size)
+yticklabels(map_size:-1:1)
+colormap('bone')
+colorbar
+
+%% Building the Minimum Distance Map
+
+function [distance, visitedNodes] = minimumTravelCosts(startNode, goalNode, distance, map, map_size, RUN_DIJKSTRA)
 
 k = 1; % keeps track of nodes visited
 cost = 0; %initial cost at start
 currentNode = startNode; %first node is the starting node
 visitedNodes(:,:,k) = [cost, startNode]; %keeping track of all nodes visited, not checked neighbors
 
-
 while goalNode(1) ~= currentNode(1) || goalNode(2) ~= currentNode(2)
 
+    %counter for the number of neighbors checked
     c = 0;
 
+    %loops to check all neighboring nodes
     for i=max(currentNode(1)-1, 1):min(currentNode(1)+1, map_size)
         
         for j=max(currentNode(2)-1, 1):min(currentNode(2)+1, map_size)
@@ -62,10 +103,10 @@ while goalNode(1) ~= currentNode(1) || goalNode(2) ~= currentNode(2)
                 c = c + 1;
 
                 %checks which algorithm is running
-                if run_Dijkstra == true
-                    coeff = 1;
-                elseif run_Dijkstra == false
-                    node_end_dist = [i_goal-i,j_goal-j];
+                if RUN_DIJKSTRA == true
+                    coeff = 0;
+                elseif RUN_DIJKSTRA == false
+                    node_end_dist = [goalNode(1)-i,goalNode(2)-j];
                     coeff = norm(node_end_dist,2);
                 end
 
@@ -93,12 +134,13 @@ while goalNode(1) ~= currentNode(1) || goalNode(2) ~= currentNode(2)
     cost = min(costCheck);
 
     %finding the indices of the iteration at which the minimum cost occured
-    [rowNew, colNew] = find(cost == costCheck);
+    [~, colNew] = find(cost == costCheck);
 
     %assigning the corresponding checked node to min cost
     %since multiple might arise, select the first min cost node that was checked
     currentNode = checkedNodes(:,:,colNew(1));
 
+    %checking other nodes that had the cheapest cost on the map, but were not yet explored
     for i=1:map_size
         for j=1:map_size
             if map(i,j) > 0 && distance(i,j) < cost
@@ -123,13 +165,18 @@ while goalNode(1) ~= currentNode(1) || goalNode(2) ~= currentNode(2)
     end
 
 end
+end
+
+
+%% Finding the Optimal Path Back to Starting Node
+
+function [optimalPath, optimalCost] = findingOptimalPath(startNode, goalNode, distance, map_size)
 
 %setting up conditions for backtracking the optimal path
 currentNode = goalNode;
 k = 1;
 optimalCost(k) = distance(goalNode(1), goalNode(2));
 optimalPath(k,:) = goalNode;
-distance
 
 while startNode(1) ~= currentNode(1) || startNode(2) ~= currentNode(2)
 
@@ -155,7 +202,7 @@ while startNode(1) ~= currentNode(1) || startNode(2) ~= currentNode(2)
                 c = c + 1;
 
                 %keeping track of all the neighbors' costs and locations
-                neighborCosts(c,1) = distance(i,j);
+                neighborCosts(c) = distance(i,j);
                 neighborPaths(c,:) = [i,j];
                     
             end
@@ -169,23 +216,14 @@ while startNode(1) ~= currentNode(1) || startNode(2) ~= currentNode(2)
 
     %finding the lowest cost amongst the neighbors
     optimalCost(k) = min(neighborCosts);
-    [rowOpt, colOpt] = find(optimalCost(k) == neighborCosts);
+    [~, colOpt] = find(optimalCost(k) == neighborCosts);
     optimalPath(k,:) = neighborPaths(colOpt(1),:);
 
     %assigning the new best node for the next iteration
     currentNode = optimalPath(k,:);
 
 end
-
-map
-distance
-trueOptCost = flip(optimalCost)
-trueOptPath = flip(optimalPath, 1)
-
-figure(1)
-plot(trueOptPath(:,1), trueOptPath(:,2))
-axis padded
-
+end
 
 
 
