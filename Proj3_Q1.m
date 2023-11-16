@@ -8,7 +8,7 @@ clc; clear; close all;
 
 
 % runs dijkstra is true, runs A* if false
-RUN_DIJKSTRA = false;
+RUN_DIJKSTRA = true;
 
 
 % Building the Map
@@ -29,7 +29,7 @@ trees = false;
 [map(3,3), map(3,4), map(4,4), map(4,5), map(4,6),...
     map(5,6), map(5,7), map(5,8), map(6,8), map(6,9)] = deal(trees);
 
-
+map;
 % Defining the Cost Matrix
 cost = inf*map_base;
 cost(startNode(1),startNode(2)) = 0;
@@ -46,6 +46,11 @@ trueOptPath = flip(optimalPath, 1);
 
 plottingOptPath(:,1) = (map_size + 1) - trueOptPath(:,1);
 plottingOptPath(:,2) = trueOptPath(:,2);
+
+if RUN_DIJKSTRA == false
+    [cost(3,3), cost(3,4), cost(4,4), cost(4,5), cost(4,6),...
+        cost(5,6), cost(5,7), cost(5,8), cost(6,8), cost(6,9)] = deal(0);
+end
 
 plottingDistances = flip(cost, 1);
 
