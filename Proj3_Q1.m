@@ -8,7 +8,7 @@ clc; clear; close all;
 
 
 % runs dijkstra is true, runs A* if false
-RUN_DIJKSTRA = true;
+RUN_DIJKSTRA = false;
 
 
 % Building the Map
@@ -67,8 +67,15 @@ hold on;
 
 plot(goalNode(2), (map_size + 1) - goalNode(1),'.','MarkerSize',25, 'Color','r') %ending location
 
-title("The Optimal Travel Cost is " + trueOptCost(end))
-
+%title("The Optimal Travel Cost is " + trueOptCost(end))
+if(RUN_DIJKSTRA==false)
+    title ('A* Algorithm')
+    trueOptCost(end)
+end
+if(RUN_DIJKSTRA==true)
+    title('Dijkstra Algorithm')
+    trueOptCost(end)
+end
 xticks(1:1:map_size)
 yticks(1:1:map_size)
 yticklabels(map_size:-1:1)
